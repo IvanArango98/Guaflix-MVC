@@ -1,0 +1,16 @@
+[
+    {
+        "nombre": "Alex",
+        "apellido": "Sanchez",
+        "edad": 21,
+        "username": "Alex_123",
+        "password": "HolaMunbdo123"
+    },
+    {
+        "nombre": "Diego",
+        "apellido": "Diaz",
+        "edad": 20,
+        "username": "@Diego123",
+        "password": "Anime123"
+    }
+]

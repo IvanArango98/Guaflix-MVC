@@ -1,0 +1,20 @@
+[
+    {
+        "name": "Dragon ball z - La resurreccion de freezer",
+        "year": 2015,
+        "type": "Pelicula",
+        "genre": "Accion"
+    },
+    {
+        "name": "Hora de aventura",
+        "year": 2009,
+        "type": "Show",
+        "genre": "Comedia"
+    },
+    {
+        "name": "Los dinosaurios",
+        "year": 2010,
+        "type": "Documental",
+        "genre": "Ciencia"
+    }
+]

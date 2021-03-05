@@ -1,0 +1,20 @@
+[
+    {
+        "name": "The Amazing SpiderMan - 2",
+        "year": 2014,
+        "type": "Pelicula",
+        "genre": "Accion"
+    },
+    {
+        "name": "La segunda guerra mundial",
+        "year": 1945,
+        "type": "Documental",
+        "genre": "Historia"
+    },
+    {
+        "name": "Bob Esponja",
+        "year": 1998,
+        "type": "Show",
+        "genre": "Comedia"
+    }
+]

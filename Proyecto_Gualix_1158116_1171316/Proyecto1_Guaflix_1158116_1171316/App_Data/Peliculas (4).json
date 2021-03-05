@@ -1,0 +1,20 @@
+[
+    {
+        "name": "Dragon ball gt",
+        "year": 1996,
+        "type": "show",
+        "genre": "Accion"
+    },
+    {
+        "name": "el maravilloso mundo de gumball",
+        "year": 2011,
+        "type": "Show",
+        "genre": "Comedia"
+    },
+    {
+        "name": "Dead Pool",
+        "year": 2016,
+        "type": "Pelicula",
+        "genre": "Accion"
+    }
+]

@@ -1,0 +1,20 @@
+[
+    {
+        "name": "Dragon ball z",
+        "year": 2015,
+        "type": "Pelicula",
+        "genre": "Accion"
+    },
+    {
+        "name": "Regular show",
+        "year": 2011,
+        "type": "Show",
+        "genre": "Comedia"
+    },
+    {
+        "name": "Earth",
+        "year": 2015,
+        "type": "Documental",
+        "genre": "Nature"
+    }
+]

@@ -1,0 +1,109 @@
+﻿@using Proyecto1_Guaflix_1158116_1171316.Models;
+@using Proyecto1_Guaflix_1158116_1171316.Models.Arbol_B;
+@using Newtonsoft.Json;
+@using System.IO;
+@using Proyecto1_Guaflix_1158116_1171316.Models.Arbol_B_;
+
+<h2>Catalogo Administrador - Si desea ver la informacion de la pagina web vaya a esta ruta C:\Proyecto1</h2>
+
+<div>
+@{
+    List<string> listaTipo = new List<string>();
+    List<string> listaNombre = new List<string>();
+    List<string> listaAño = new List<string>();
+    List<string> listaGenero = new List<string>();
+    List<string> PeliculasMostrar = new List<string>();
+    List<int> PosicionesElementos = new List<int>();
+    string TipoDePelicula = "";
+    ArbolBPlus<string, string> arbolBPlusNombre = new ArbolBPlus<string, string>(4);
+    ArbolBPlus<string, string> arbolBPlusGenero = new ArbolBPlus<string, string>(4);
+    ArbolBPlus<string, string> arbolBPlusAño = new ArbolBPlus<string, string>(4);
+
+    if (System.IO.File.Exists(@" C:\Proyecto1\Peliculas.tree"))
+    {
+        List<string> JsonPeliculas = new List<string>();
+        var location = @" C:\Proyecto1\Peliculas.tree";
+
+        using (StreamReader leer = new StreamReader(location))
+        {
+            int i = 0;
+            while (!leer.EndOfStream)
+            {
+                string x = leer.ReadLine();
+                JsonPeliculas.Add(x);
+                i++;
+            }
+        }
+
+        //Desearializar json
+
+        for (int i = 0; i < JsonPeliculas.Count; i++)
+        {
+            Peliculas peliculas = JsonConvert.DeserializeObject<Peliculas>(JsonPeliculas.ElementAt(i));
+            listaTipo.Add(peliculas.Tipo);
+            listaNombre.Add(peliculas.Nombre);
+            listaAño.Add(peliculas.AñoLanzamiento);
+            listaGenero.Add(peliculas.Genero);
+            PeliculasMostrar.Add("Tipo: " + listaTipo.ElementAt(i) + ", Nombre: " + listaNombre.ElementAt(i) + ", Año: " + listaAño.ElementAt(i) + ", Genero: " + listaGenero.ElementAt(i));
+        }
+
+
+        ArbolB arbolB = new ArbolB(3);
+        for (int i = 0; i < listaTipo.Count; i++)
+        {
+            arbolB.Insertar(PeliculasMostrar.ElementAt(i));
+        }
+        PeliculasMostrar.Sort();
+        if (PeliculasMostrar.Count == 0)
+        {
+            PeliculasMostrar.Add("Base de datos de guaflix vacía.");
+        }
+
+
+    }
+}
+</div>  
+
+<div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th> Peliculas disponibles </th>
+            </tr>
+        </thead>
+
+
+        <tbody>
+
+            @foreach (var item in PeliculasMostrar)
+            {
+
+                <tr>
+                    <td>
+                        @item
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<div>
+    <h3></h3>
+    @Html.ActionLink("Agregar Peliculas", "AgregarPeliculasAdministrador", "Peliculas", null, new { atributo = "valor3", @class = "btn btn-primary" })
+
+    <h3></h3>
+    @Html.ActionLink("Eliminar Peliculas", "EliminarPelicula", "Peliculas", null, new { atributo = "valor3", @class = "btn btn-primary" })
+    <h3></h3>
+    @Html.ActionLink("Agregar Usuarios", "AgregarUsuarios", "Peliculas", null, new { atributo = "valor3", @class = "btn btn-primary" })
+
+    <h3></h3>
+    @Html.ActionLink("Cerrar Sesion", "IniciarSesionGuaflix", "LogIn", null, new { atributo = "valor3", @class = "btn btn-primary" })
+
+    <h3></h3>
+
+
+</div>

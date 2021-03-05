@@ -1,0 +1,117 @@
+﻿@model Proyecto1_Guaflix_1158116_1171316.Models.EliminarPelicula
+@using Proyecto1_Guaflix_1158116_1171316.Models;
+@using Proyecto1_Guaflix_1158116_1171316.Models.Arbol_B;
+@using Newtonsoft.Json;
+@using System.IO;
+
+<h2>Eliminar Pelicula de catalogo</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">        
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.NombrePeliculaEliminar, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.NombrePeliculaEliminar, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.NombrePeliculaEliminar, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Eliminar Pelicula" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+<h3></h3>
+
+<h4>@ViewBag.Message</h4>
+<h3></h3>
+@{
+    List<string> listaTipo = new List<string>();
+    List<string> listaNombre = new List<string>();
+    List<string> listaAño = new List<string>();
+    List<string> listaGenero = new List<string>();
+    List<string> PeliculasMostrar = new List<string>();
+
+    if (System.IO.File.Exists(@" C:\Proyecto1\Peliculas.tree"))
+    {
+        List<string> JsonPeliculas = new List<string>();
+        var location = @" C:\Proyecto1\Peliculas.tree";
+        using (StreamReader leer = new StreamReader(location))
+        {
+            int i = 0;
+            while (!leer.EndOfStream)
+            {
+                string x = leer.ReadLine();
+                JsonPeliculas.Add(x);
+                i++;
+            }
+        }
+        //Desearializar json
+
+
+        for (int i = 0; i < JsonPeliculas.Count; i++)
+        {
+            Peliculas peliculas = JsonConvert.DeserializeObject<Peliculas>(JsonPeliculas.ElementAt(i));
+            listaTipo.Add(peliculas.Tipo);
+            listaNombre.Add(peliculas.Nombre);
+            listaAño.Add(peliculas.AñoLanzamiento);
+            listaGenero.Add(peliculas.Genero);
+
+            PeliculasMostrar.Add("Tipo: " + listaTipo.ElementAt(i) + ", Nombre: " + listaNombre.ElementAt(i) + ", Año: " + listaAño.ElementAt(i) + ", Genero: " + listaGenero.ElementAt(i));
+        }
+        if(PeliculasMostrar.Count == 0)
+        {
+            PeliculasMostrar.Add("Base de Datos de Guaflix vacía.");
+        }
+
+        ArbolB ArbolPeliculas = new ArbolB(3);
+
+        for (int i = 0; i < listaTipo.Count; i++)
+        {
+            ArbolPeliculas.Insertar(PeliculasMostrar.ElementAt(i));
+        }
+
+    }
+
+
+}
+
+<div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th> Peliculas disponibles </th>
+            </tr>
+        </thead>
+
+
+        <tbody>
+
+            @foreach (var item in PeliculasMostrar)
+            {
+
+                <tr>
+                    <td>
+                        @item
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<div>
+    <h3></h3>
+    @Html.ActionLink("Ver Catalogo de Peliculas", "VisualizarCatalogo", "Peliculas", null, new { atributo = "valor3", @class = "btn btn-primary" })
+
+</div>

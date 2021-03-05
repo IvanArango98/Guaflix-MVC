@@ -1,0 +1,33 @@
+﻿@model Proyecto1_Guaflix_1158116_1171316.Models.BuscarPelicula
+
+<h1>Buscar Pelicula de catalogo</h1>
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">        
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.IngresarNombrePelicula, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.IngresarNombrePelicula, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.IngresarNombrePelicula, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Buscar Pelicula.." class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+    <div>
+        <h3></h3>
+        <h2>@ViewBag.Message</h2>
+        <h3></h3>
+        @Html.ActionLink("Regresar añadir peliculas a mi lista", "ListaPeliculasUsuario", "Peliculas", null, new { atributo = "valor3", @class = "btn btn-primary" })
+    </div>

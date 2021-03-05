@@ -1,0 +1,491 @@
+﻿@using Proyecto1_Guaflix_1158116_1171316.Models;
+@using Proyecto1_Guaflix_1158116_1171316.Models.Arbol_B;
+@using Newtonsoft.Json;
+@using System.IO;
+@using Proyecto1_Guaflix_1158116_1171316.Models.Arbol_B_;
+
+
+<h2>Agregar Usuarios por medio de archivo json.</h2>
+<h3></h3>
+<div>
+    @using (Html.BeginForm("AgregarUsuarios", "Peliculas", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <input type="file" name="FileUpload" />
+        <br />
+        <input type="submit" name="Submit" id="Submit" value="Upload" />
+    }
+    <h3></h3>
+</div>
+@{
+    //Declarar Variables
+    Directory.CreateDirectory(@" C:\Proyecto1");
+    string location = @"C:\Proyecto1\Users.tree";
+    string location2 = @"C:\Proyecto1\Users.txt";
+
+    string data = Convert.ToString(TempData["uploadResult"]);
+    string file = Convert.ToString(TempData["file"]);
+    ArbolBPlus<string, string> arbolBPlusUsuarios = new ArbolBPlus<string, string>(4);
+    List<string> jsonUsers = new List<string>();
+    var users = JsonConvert.DeserializeObject<List<Usuarios>>(file);
+    string mensaje = "";
+
+    if(file.Length >= 20)
+    {
+        if (System.IO.File.Exists(@"C:\Proyecto1\Users.tree"))
+        {
+            for (int i = 0; i < users.Count; i++)
+            {
+
+                var usuario = new CrearUsuario()
+                {
+                    Nombre = users.ElementAt(i).nombre,
+                    Apellido = users.ElementAt(i).apellido,
+                    Edad = users.ElementAt(i).edad,
+                    UserName = users.ElementAt(i).username,
+                    Password = users.ElementAt(i).password,
+                    ConfirmPassword = users.ElementAt(i).password
+                };
+                string convertir = JsonConvert.SerializeObject(usuario);
+                jsonUsers.Add(convertir);
+
+            }
+            //agregando usuarios al arbol B+
+            for (int i = 0; i < users.Count; i++)
+            {
+                arbolBPlusUsuarios.Insertar(users.ElementAt(i).username, jsonUsers.ElementAt(i));
+            }
+            using (StreamReader leer = new StreamReader(location))
+            {
+                int i = 0;
+                while (!leer.EndOfStream)
+                {
+                    string x = leer.ReadLine();
+                    jsonUsers.Add(x);
+                    i++;
+                }
+            }
+            List<int> Remover = new List<int>();
+            jsonUsers.Sort();
+            for (int i = 0; i < jsonUsers.Count; i++)
+            {
+                if (i < jsonUsers.Count - 1)
+                {
+                    string tempo = jsonUsers.ElementAt(i + 1);
+                    if (tempo == jsonUsers.ElementAt(i))
+                    {
+                        Remover.Add(i);
+                    }
+                }
+            }
+            for (int i = 0; i < Remover.Count; i++)
+            {
+                try
+                {
+                    jsonUsers.Remove(jsonUsers.ElementAt(Remover.ElementAt(i)));
+                }
+                catch
+                {
+                    break;
+                }
+            }
+            jsonUsers.Sort();
+            Remover.Clear();
+            for (int i = 0; i < jsonUsers.Count; i++)
+            {
+                if (i < jsonUsers.Count - 1)
+                {
+                    string tempo = jsonUsers.ElementAt(i + 1);
+                    if (tempo == jsonUsers.ElementAt(i))
+                    {
+                        Remover.Add(i);
+                    }
+                }
+            }
+            for (int i = 0; i < Remover.Count; i++)
+            {
+                try
+                {
+                    jsonUsers.Remove(jsonUsers.ElementAt(Remover.ElementAt(i)));
+                }
+                catch
+                {
+                    break;
+                }
+            }
+            using (StreamWriter sw = new StreamWriter(location))
+            {
+                for (int i = 0; i < jsonUsers.Count; i++)
+                {
+                    sw.WriteLine(jsonUsers.ElementAt(i));
+                }
+            }
+
+            //Almacenar arbol de usuarios en disco local c:
+            #region
+
+            //deserealizar 
+            List<string> Json = new List<string>();
+            List<string> ListNombre = new List<string>();
+            using (StreamReader leer = new StreamReader(location))
+            {
+                int i = 0;
+                while (!leer.EndOfStream)
+                {
+                    string x = leer.ReadLine();
+                    Json.Add(x);
+                    i++;
+                }
+            }
+
+
+            //Desearializar json
+            for (int i = 0; i < Json.Count; i++)
+            {
+                CrearUsuario usuario = JsonConvert.DeserializeObject<CrearUsuario>(Json.ElementAt(i));
+                ListNombre.Add(usuario.UserName);
+                arbolBPlusUsuarios.Insertar(ListNombre.ElementAt(i), Json.ElementAt(i));
+            }
+
+            #region
+            var list = new List<KeyValuePair<string, string>>();
+            list.Add(new KeyValuePair<string, string>("B", "A"));
+            List<string> MostrarArbol = new List<string>();
+
+            Nodo<string, string> pivote = arbolBPlusUsuarios.EncontrarHojaPorKey(list.ElementAt(0).Key);
+            if (pivote.Valores != null)
+            {
+                for (int i = 0; i < pivote.Valores.Count; i++)
+                {
+                    MostrarArbol.Add(pivote.Valores.ElementAt(i).ToString());
+                }
+            }
+            if (pivote.NodoHojaDerecho != null)
+            {
+                for (int i = 0; i < pivote.NodoHojaDerecho.Valores.Count; i++)
+                {
+                    MostrarArbol.Add(pivote.NodoHojaDerecho.Valores.ElementAt(i).ToString());
+                }
+                if (pivote.NodoHojaDerecho.NodoHojaDerecho != null)
+                {
+                    for (int i = 0; i < pivote.NodoHojaDerecho.NodoHojaDerecho.Valores.Count; i++)
+                    {
+
+                        MostrarArbol.Add(pivote.NodoHojaDerecho.NodoHojaDerecho.Valores.ElementAt(i).ToString());
+                    }
+                    if (pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho != null)
+                    {
+                        for (int i = 0; i < pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.Valores.Count; i++)
+                        {
+
+                            MostrarArbol.Add(pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.Valores.ElementAt(i).ToString());
+                        }
+                        if (pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho != null)
+                        {
+                            for (int i = 0; i < pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.Valores.Count; i++)
+                            {
+
+                                MostrarArbol.Add(pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.Valores.ElementAt(i).ToString());
+                            }
+                            if (pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho != null)
+                            {
+                                for (int i = 0; i < pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.Valores.Count; i++)
+                                {
+
+                                    MostrarArbol.Add(pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.Valores.ElementAt(i).ToString());
+                                }
+                                if (pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho != null)
+                                {
+                                    for (int i = 0; i < pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.Valores.Count; i++)
+                                    {
+
+                                        MostrarArbol.Add(pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.Valores.ElementAt(i).ToString());
+                                    }
+                                    if (pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho != null)
+                                    {
+                                        for (int i = 0; i < pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.Valores.Count; i++)
+                                        {
+
+                                            MostrarArbol.Add(pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.Valores.ElementAt(i).ToString());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (pivote.NodoHojaIzquierdo != null)
+            {
+                for (int i = 0; i < pivote.NodoHojaIzquierdo.Valores.Count; i++)
+                {
+
+                    MostrarArbol.Add(pivote.NodoHojaIzquierdo.Valores.ElementAt(i).ToString());
+                }
+                if (pivote.NodoHojaIzquierdo.NodoHojaIzquierdo != null)
+                {
+                    for (int i = 0; i < pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.Count; i++)
+                    {
+                        MostrarArbol.Add(pivote.NodoHojaIzquierdo.Valores.ElementAt(i).ToString().ToString());
+                    }
+                    if (pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo != null)
+                    {
+                        for (int i = 0; i < pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.Count; i++)
+                        {
+
+                            MostrarArbol.Add(pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.ElementAt(i).ToString());
+                        }
+                        if (pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo != null)
+                        {
+                            for (int i = 0; i < pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.Count; i++)
+                            {
+
+                                MostrarArbol.Add(pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.ElementAt(i).ToString());
+                            }
+                            if (pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo != null)
+                            {
+                                for (int i = 0; i < pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.Count; i++)
+                                {
+
+                                    MostrarArbol.Add(pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.ElementAt(i).ToString());
+                                }
+                                if (pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo != null)
+                                {
+                                    for (int i = 0; i < pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.Count; i++)
+                                    {
+
+                                        MostrarArbol.Add(pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.ElementAt(i).ToString());
+                                    }
+                                    if (pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo != null)
+                                    {
+                                        for (int i = 0; i < pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.Count; i++)
+                                        {
+
+                                            MostrarArbol.Add(pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.ElementAt(i).ToString());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+            #endregion
+
+            using (StreamWriter writer2 = new StreamWriter(location2))
+            {
+                for (int i = 0; i < MostrarArbol.Count; i++)
+                {
+                    writer2.WriteLine(MostrarArbol.ElementAt(i));
+                }
+            }
+
+            #endregion
+            mensaje = "usuarios añadidos correctamente";
+        }
+        else
+        {
+            for (int i = 0; i < users.Count; i++)
+            {
+
+                var usuario = new CrearUsuario()
+                {
+                    Nombre = users.ElementAt(i).nombre,
+                    Apellido = users.ElementAt(i).apellido,
+                    Edad = users.ElementAt(i).edad,
+                    UserName = users.ElementAt(i).username,
+                    Password = users.ElementAt(i).password,
+                    ConfirmPassword = users.ElementAt(i).password
+                };
+                string convertir = JsonConvert.SerializeObject(usuario);
+                jsonUsers.Add(convertir);
+
+            }
+            //agregando usuarios al arbol B+
+            for (int i = 0; i < users.Count; i++)
+            {
+                arbolBPlusUsuarios.Insertar(users.ElementAt(i).username, jsonUsers.ElementAt(i));
+            }
+            using (StreamWriter sw = new StreamWriter(location))
+            {
+                for (int i = 0; i < jsonUsers.Count; i++)
+                {
+                    sw.WriteLine(jsonUsers.ElementAt(i));
+                }
+            }
+            //Almacenar arbol de usuarios en disco local c:
+            #region
+
+            //deserealizar 
+            List<string> Json = new List<string>();
+            List<string> ListNombre = new List<string>();
+            using (StreamReader leer = new StreamReader(location))
+            {
+                int i = 0;
+                while (!leer.EndOfStream)
+                {
+                    string x = leer.ReadLine();
+                    Json.Add(x);
+                    i++;
+                }
+            }
+
+
+            //Desearializar json
+            for (int i = 0; i < Json.Count; i++)
+            {
+                CrearUsuario usuario = JsonConvert.DeserializeObject<CrearUsuario>(Json.ElementAt(i));
+                ListNombre.Add(usuario.UserName);
+                arbolBPlusUsuarios.Insertar(ListNombre.ElementAt(i), Json.ElementAt(i));
+            }
+
+            #region
+            var list = new List<KeyValuePair<string, string>>();
+            list.Add(new KeyValuePair<string, string>("B", "A"));
+            List<string> MostrarArbol = new List<string>();
+
+            Nodo<string, string> pivote = arbolBPlusUsuarios.EncontrarHojaPorKey(list.ElementAt(0).Key);
+            if (pivote.Valores != null)
+            {
+                for (int i = 0; i < pivote.Valores.Count; i++)
+                {
+                    MostrarArbol.Add(pivote.Valores.ElementAt(i).ToString());
+                }
+            }
+            if (pivote.NodoHojaDerecho != null)
+            {
+                for (int i = 0; i < pivote.NodoHojaDerecho.Valores.Count; i++)
+                {
+                    MostrarArbol.Add(pivote.NodoHojaDerecho.Valores.ElementAt(i).ToString());
+                }
+                if (pivote.NodoHojaDerecho.NodoHojaDerecho != null)
+                {
+                    for (int i = 0; i < pivote.NodoHojaDerecho.NodoHojaDerecho.Valores.Count; i++)
+                    {
+
+                        MostrarArbol.Add(pivote.NodoHojaDerecho.NodoHojaDerecho.Valores.ElementAt(i).ToString());
+                    }
+                    if (pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho != null)
+                    {
+                        for (int i = 0; i < pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.Valores.Count; i++)
+                        {
+
+                            MostrarArbol.Add(pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.Valores.ElementAt(i).ToString());
+                        }
+                        if (pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho != null)
+                        {
+                            for (int i = 0; i < pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.Valores.Count; i++)
+                            {
+
+                                MostrarArbol.Add(pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.Valores.ElementAt(i).ToString());
+                            }
+                            if (pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho != null)
+                            {
+                                for (int i = 0; i < pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.Valores.Count; i++)
+                                {
+
+                                    MostrarArbol.Add(pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.Valores.ElementAt(i).ToString());
+                                }
+                                if (pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho != null)
+                                {
+                                    for (int i = 0; i < pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.Valores.Count; i++)
+                                    {
+
+                                        MostrarArbol.Add(pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.Valores.ElementAt(i).ToString());
+                                    }
+                                    if (pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho != null)
+                                    {
+                                        for (int i = 0; i < pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.Valores.Count; i++)
+                                        {
+
+                                            MostrarArbol.Add(pivote.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.NodoHojaDerecho.Valores.ElementAt(i).ToString());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (pivote.NodoHojaIzquierdo != null)
+            {
+                for (int i = 0; i < pivote.NodoHojaIzquierdo.Valores.Count; i++)
+                {
+
+                    MostrarArbol.Add(pivote.NodoHojaIzquierdo.Valores.ElementAt(i).ToString());
+                }
+                if (pivote.NodoHojaIzquierdo.NodoHojaIzquierdo != null)
+                {
+                    for (int i = 0; i < pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.Count; i++)
+                    {
+                        MostrarArbol.Add(pivote.NodoHojaIzquierdo.Valores.ElementAt(i).ToString().ToString());
+                    }
+                    if (pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo != null)
+                    {
+                        for (int i = 0; i < pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.Count; i++)
+                        {
+
+                            MostrarArbol.Add(pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.ElementAt(i).ToString());
+                        }
+                        if (pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo != null)
+                        {
+                            for (int i = 0; i < pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.Count; i++)
+                            {
+
+                                MostrarArbol.Add(pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.ElementAt(i).ToString());
+                            }
+                            if (pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo != null)
+                            {
+                                for (int i = 0; i < pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.Count; i++)
+                                {
+
+                                    MostrarArbol.Add(pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.ElementAt(i).ToString());
+                                }
+                                if (pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo != null)
+                                {
+                                    for (int i = 0; i < pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.Count; i++)
+                                    {
+
+                                        MostrarArbol.Add(pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.ElementAt(i).ToString());
+                                    }
+                                    if (pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo != null)
+                                    {
+                                        for (int i = 0; i < pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.Count; i++)
+                                        {
+
+                                            MostrarArbol.Add(pivote.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.NodoHojaIzquierdo.Valores.ElementAt(i).ToString());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+            #endregion
+
+            using (StreamWriter writer2 = new StreamWriter(location2))
+            {
+                for (int i = 0; i < MostrarArbol.Count; i++)
+                {
+                    writer2.WriteLine(MostrarArbol.ElementAt(i));
+                }
+            }
+
+            #endregion
+            mensaje = "usuarios añadidos correctamente.";
+        }
+    }
+
+}
+<div>
+
+    <div>
+        <h3></h3>
+        <h3>@mensaje</h3>
+    <h3></h3>
+    @Html.ActionLink("Regresar a menu principal de administrador", "VisualizarCatalogo", "Peliculas", null, new { atributo = "valor3", @class = "btn btn-primary" })
+
+    </div>
+</div>

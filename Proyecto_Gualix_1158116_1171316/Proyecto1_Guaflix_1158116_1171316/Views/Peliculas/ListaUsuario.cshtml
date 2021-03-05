@@ -1,0 +1,97 @@
+﻿@using Proyecto1_Guaflix_1158116_1171316.Models;
+@using Proyecto1_Guaflix_1158116_1171316.Models.Arbol_B_;
+@using Newtonsoft.Json;
+@using System.IO;
+
+
+
+
+@{
+
+
+    //Extrar Nombre de usuario Para crear la lista.
+    #region
+    string usuario = "";
+    var location2 = @" C:\Proyecto1\UsuarioActual.txt";
+    using (StreamReader leer = new StreamReader(location2))
+    {
+        int i = 0;
+        while (!leer.EndOfStream)
+        {
+            string x = leer.ReadLine();
+            usuario = (x);
+            i++;
+        }
+    }
+    #endregion
+
+    List<string> jsonFile = new List<string>();
+    List<string> PeliculasMostrar = new List<string>();
+    string ruta = usuario + "WatchList" + ".tree";
+    string location = @" C:\Proyecto1\" + ruta;
+
+    if (System.IO.File.Exists(location))
+    {
+        #region
+
+        using (StreamReader leer = new StreamReader(location))
+        {
+            int i = 0;
+            while (!leer.EndOfStream)
+            {
+                string x = leer.ReadLine();
+                jsonFile.Add(x);
+                i++;
+            }
+        }
+
+
+        for (int i = 0; i < jsonFile.Count; i++)
+        {
+            if (jsonFile.ElementAt(i) != "Arbol B+ vacio.")
+            {
+                ListaPeliculas peliculas = JsonConvert.DeserializeObject<ListaPeliculas>(jsonFile.ElementAt(i));
+                PeliculasMostrar.Add(peliculas.NombrePeliculaAgregar);
+            }
+            else
+            {
+                PeliculasMostrar.Add("No hay elementos en tu lista " + usuario);
+            }
+        }
+
+        #endregion       
+    }
+}
+
+<h4>Disfruta de tu lista @usuario</h4>
+
+<div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th> Peliculas disponibles </th>
+            </tr>
+        </thead>
+
+
+        <tbody>
+
+            @foreach (var item in PeliculasMostrar)
+            {
+
+                <tr>
+                    <td>
+                        @item
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+
+</div>
+
+@Html.ActionLink("Regresar", "VisualizarCatalogoUsuario", "Peliculas", null, new { atributo = "valor3", @class = "btn btn-primary" })
+
+

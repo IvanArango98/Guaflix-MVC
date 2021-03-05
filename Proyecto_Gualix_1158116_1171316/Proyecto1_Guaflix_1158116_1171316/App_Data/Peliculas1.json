@@ -1,0 +1,20 @@
+[
+    {
+        "name": "Dragon Ball z - La batalla de los dioses",
+        "year": 2013,
+        "type": "Pelicula",
+        "genre": "Acción"
+    },
+    {
+        "name": "Capitan America: Civil War",
+        "year": 2015,
+        "type": "Pelicula",
+        "genre": "Acción"
+    },
+    {
+        "name": "Earth",
+        "year": 2011,
+        "type": "Documental",
+        "genre": "Naturaleza"
+    }
+]
